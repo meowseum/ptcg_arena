@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">寶可夢卡牌競技場</h1>
+        <p class="hero-subtitle">專業賽事管理 × ELO 積分系統 × 數據分析</p>
+
+        {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="margin-right: 1rem;">
+                登入
+            </a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-outline" style="margin-right: 1rem;">
+                註冊
+            </a>
+        {% endif %}
+        <a href="{{ url_for('tournament.list') }}" class="btn btn-secondary">
+            瀏覽賽事
+        </a>
+    </div>
+</section>
+
+<!-- Live Tournaments -->
+{% if live %}
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">🔴 進行中賽事</h2>
+        <div class="grid grid-2">
+            {% for tournament in live %}
+            <div class="card tournament-card">
+                <span class="status-badge status-live">進行中</span>
+                <div class="card-header">{{ tournament.name }}</div>
+                <div class="card-body">
+                    <p><strong>日期:</strong> {{ tournament.date.strftime('%Y-%m-%d') }}</p>
+                    <p><strong>當前回合:</strong> 第 {{ tournament.current_round }} 回合</p>
+                    <p><strong>參賽人數:</strong> {{ tournament.participants|length }} 人</p>
+                    <a href="{{ url_for('tournament.view', tournament_id=tournament.id) }}" class="btn btn-primary" style="margin-top: 1rem;">
+                        觀看賽事
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Upcoming Tournaments -->
+{% if upcoming %}
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">📅 即將舉辦</h2>
+        <div class="grid grid-3">
+            {% for tournament in upcoming %}
+            <div class="card tournament-card">
+                <span class="status-badge status-upcoming">即將開始</span>
+                <div class="card-header">{{ tournament.name }}</div>
+                <div class="card-body">
+                    <p><strong>日期:</strong> {{ tournament.date.strftime('%Y-%m-%d') }}</p>
+                    <p><strong>主辦:</strong> {{ tournament.organizer.username }}</p>
+                    <a href="{{ url_for('tournament.view', tournament_id=tournament.id) }}" class="btn btn-outline" style="margin-top: 1rem;">
+                        查看詳情
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Top Players -->
+{% if top_players %}
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">🏆 頂尖玩家</h2>
+        <div class="grid grid-3">
+            {% for player in top_players %}
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 2rem; font-weight: 900; color: var(--primary-blue); margin-bottom: 0.5rem;">
+                    #{{ loop.index }}
+                </div>
+                <div class="card-header">{{ player.name }}</div>
+                <div class="card-body">
+                    <p style="font-size: 1.5rem; font-weight: 700; color: var(--accent-purple); margin: 0.5rem 0;">
+                        {{ "%.1f"|format(player.elo) }}
+                    </p>
+                    <p><strong>勝場:</strong> {{ player.wins }}W - {{ player.losses }}L</p>
+                    <p><strong>勝率:</strong> {{ "%.1f"|format(player.win_rate * 100) }}%</p>
+                    <p><strong>狀態:</strong> <span style="color: {% if player.status == 'Official' %}var(--success){% else %}var(--warning){% endif %};">{{ player.status }}</span></p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Features Section -->
+<section class="section" style="background: var(--bg-secondary); margin-top: 3rem; padding: 3rem 0;">
+    <div class="container">
+        <h2 class="section-title" style="text-align: center;">平台功能</h2>
+        <div class="grid grid-3">
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⚔️</div>
+                <div class="card-header">Swiss 配對系統</div>
+                <div class="card-body">
+                    <p>符合官方規範的瑞士制配對，自動避免重複對戰，支援 Bye 與計時功能</p>
+                </div>
+            </div>
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                <div class="card-header">ELO 積分系統</div>
+                <div class="card-body">
+                    <p>即時計算玩家與牌組 ELO，提供多維度雷達圖與數據分析</p>
+                </div>
+            </div>
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+                <div class="card-header">數據儀表板</div>
+                <div class="card-body">
+                    <p>賽季統計、牌組使用率、對戰記錄查詢，一目瞭然</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
