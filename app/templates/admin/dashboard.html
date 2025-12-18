@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem;">
+    <h1 style="margin-bottom: 2rem;">🛠️ 管理員控制台</h1>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-4" style="margin-bottom: 3rem;">
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 3rem; color: var(--primary-blue); margin-bottom: 0.5rem;">{{ total_users }}</div>
+            <div style="font-size: 1.1rem; color: var(--text-secondary);">註冊用戶</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 3rem; color: var(--accent-purple); margin-bottom: 0.5rem;">{{ total_tournaments }}</div>
+            <div style="font-size: 1.1rem; color: var(--text-secondary);">總賽事數</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 3rem; color: var(--warning); margin-bottom: 0.5rem;">{{ total_players }}</div>
+            <div style="font-size: 1.1rem; color: var(--text-secondary);">玩家檔案</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 3rem; color: var(--success); margin-bottom: 0.5rem;">{{ total_matches }}</div>
+            <div style="font-size: 1.1rem; color: var(--text-secondary);">對戰記錄</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">快速操作</div>
+        <div class="card-body">
+            <a href="{{ url_for('tournament.list') }}" class="btn btn-primary" style="margin-right: 1rem;">
+                ⚔️ 管理賽事
+            </a>
+            <a href="{{ url_for('admin.users') }}" class="btn btn-secondary" style="margin-right: 1rem;">
+                👥 管理用戶
+            </a>
+            <a href="{{ url_for('analytics.leaderboard') }}" class="btn btn-outline">
+                🏆 查看排行榜
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Users -->
+    {% if recent_users %}
+    <div class="card">
+        <div class="card-header">最近註冊用戶</div>
+        <div class="card-body">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
+                        <th style="padding: 0.75rem;">用戶名</th>
+                        <th style="padding: 0.75rem;">Email</th>
+                        <th style="padding: 0.75rem;">角色</th>
+                        <th style="padding: 0.75rem;">註冊時間</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in recent_users %}
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 0.75rem;">{{ user.username }}</td>
+                        <td style="padding: 0.75rem;">{{ user.email }}</td>
+                        <td style="padding: 0.75rem;">
+                            <span class="status-badge {% if user.role == 'admin' %}status-live{% elif user.role == 'organizer' %}status-upcoming{% else %}status-past{% endif %}">
+                                {{ user.role }}
+                            </span>
+                        </td>
+                        <td style="padding: 0.75rem;">{{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

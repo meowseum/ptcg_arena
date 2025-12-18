@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem;">
+    <h1 style="margin-bottom: 2rem;">🏆 排行榜</h1>
+
+    <!-- Filters -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-body">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{{ url_for('analytics.leaderboard', status='all', min_games=min_games) }}"
+                       class="btn btn-sm {% if status_filter == 'all' %}btn-primary{% else %}btn-outline{% endif %}">
+                        全部
+                    </a>
+                    <a href="{{ url_for('analytics.leaderboard', status='official', min_games=min_games) }}"
+                       class="btn btn-sm {% if status_filter == 'official' %}btn-primary{% else %}btn-outline{% endif %}">
+                        Official (≥10 場)
+                    </a>
+                    <a href="{{ url_for('analytics.leaderboard', status='provisional', min_games=min_games) }}"
+                       class="btn btn-sm {% if status_filter == 'provisional' %}btn-primary{% else %}btn-outline{% endif %}">
+                        Provisional (<10 場)
+                    </a>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <label style="color: var(--text-secondary);">最少場次:</label>
+                    <select onchange="window.location.href='{{ url_for('analytics.leaderboard', status=status_filter) }}&min_games=' + this.value"
+                            style="padding: 0.25rem 0.5rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
+                        <option value="0" {% if min_games == 0 %}selected{% endif %}>無限制</option>
+                        <option value="5" {% if min_games == 5 %}selected{% endif %}>5+ 場</option>
+                        <option value="10" {% if min_games == 10 %}selected{% endif %}>10+ 場</option>
+                        <option value="20" {% if min_games == 20 %}selected{% endif %}>20+ 場</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-2" style="align-items: start;">
+        <!-- Player Leaderboard -->
+        <div class="card">
+            <div class="card-header">玩家排行</div>
+            <div class="card-body">
+                {% if players %}
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                            <th style="padding: 0.75rem;">排名</th>
+                            <th style="padding: 0.75rem;">玩家</th>
+                            <th style="padding: 0.75rem;">ELO</th>
+                            <th style="padding: 0.75rem;">戰績</th>
+                            <th style="padding: 0.75rem;">狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in players %}
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem;">
+                                <span style="font-weight: 700; font-size: 1.1rem; color: {% if loop.index == 1 %}#FFD700{% elif loop.index == 2 %}#C0C0C0{% elif loop.index == 3 %}#CD7F32{% else %}var(--text-secondary){% endif %};">
+                                    #{{ loop.index }}
+                                </span>
+                            </td>
+                            <td style="padding: 0.75rem;">
+                                <a href="{{ url_for('analytics.profile', player_id=player.id) }}" style="color: var(--primary-blue); text-decoration: none;">
+                                    {{ player.name }}
+                                </a>
+                            </td>
+                            <td style="padding: 0.75rem;">
+                                <strong style="color: var(--accent-purple);">{{ "%.1f"|format(player.elo) }}</strong>
+                            </td>
+                            <td style="padding: 0.75rem;">
+                                <span style="color: var(--success);">{{ player.wins }}W</span> -
+                                <span style="color: var(--danger);">{{ player.losses }}L</span>
+                                ({{ "%.0f"|format(player.win_rate * 100) }}%)
+                            </td>
+                            <td style="padding: 0.75rem;">
+                                <span class="status-badge {% if player.status == 'Official' %}status-live{% else %}status-upcoming{% endif %}">
+                                    {{ player.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p style="text-align: center; color: var(--text-secondary); padding: 2rem;">暫無玩家資料</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Deck Leaderboard -->
+        <div class="card">
+            <div class="card-header">牌組排行</div>
+            <div class="card-body">
+                {% if decks %}
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                            <th style="padding: 0.75rem;">排名</th>
+                            <th style="padding: 0.75rem;">牌組</th>
+                            <th style="padding: 0.75rem;">ELO</th>
+                            <th style="padding: 0.75rem;">勝率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for deck in decks %}
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem;">
+                                <span style="font-weight: 700; color: {% if loop.index <= 3 %}var(--primary-blue){% else %}var(--text-secondary){% endif %};">
+                                    #{{ loop.index }}
+                                </span>
+                            </td>
+                            <td style="padding: 0.75rem;">{{ deck.name }}</td>
+                            <td style="padding: 0.75rem;">
+                                <strong style="color: var(--accent-purple);">{{ "%.1f"|format(deck.elo) }}</strong>
+                            </td>
+                            <td style="padding: 0.75rem;">
+                                {{ "%.0f"|format(deck.win_rate * 100) }}%
+                                <span style="color: var(--text-muted); font-size: 0.9rem;">({{ deck.games_played }}場)</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p style="text-align: center; color: var(--text-secondary); padding: 2rem;">暫無牌組資料</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem;">
+    <!-- Tournament Header -->
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+        <div>
+            <h1 style="margin-bottom: 0.5rem;">{{ tournament.name }}</h1>
+            <p style="color: var(--text-secondary);">
+                {{ tournament.date.strftime('%Y-%m-%d') }} | 主辦：{{ tournament.organizer.username }}
+            </p>
+        </div>
+        <span class="status-badge {% if tournament.status == 'live' %}status-live{% elif tournament.status == 'upcoming' %}status-upcoming{% else %}status-past{% endif %}"
+              style="font-size: 1.1rem; padding: 0.5rem 1rem;">
+            {% if tournament.status == 'live' %}🔴 進行中{% elif tournament.status == 'upcoming' %}📅 即將開始{% else %}✅ 已結束{% endif %}
+        </span>
+    </div>
+
+    <!-- Tournament Info -->
+    <div class="grid grid-4" style="margin-bottom: 2rem;">
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; color: var(--primary-blue); margin-bottom: 0.5rem;">{{ tournament.participants|length }}</div>
+            <div style="color: var(--text-secondary);">參賽人數</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; color: var(--accent-purple); margin-bottom: 0.5rem;">{{ tournament.current_round }}</div>
+            <div style="color: var(--text-secondary);">當前回合</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; color: var(--warning); margin-bottom: 0.5rem;">{{ tournament.mode.upper() }}</div>
+            <div style="color: var(--text-secondary);">賽制</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; color: var(--success); margin-bottom: 0.5rem;">{{ tournament.matches|length }}</div>
+            <div style="color: var(--text-secondary);">對戰場次</div>
+        </div>
+    </div>
+
+    <!-- Standings -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">排名</div>
+        <div class="card-body">
+            {% if participants %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                        <th style="padding: 0.75rem;">排名</th>
+                        <th style="padding: 0.75rem;">玩家</th>
+                        <th style="padding: 0.75rem;">牌組</th>
+                        <th style="padding: 0.75rem;">分數</th>
+                        <th style="padding: 0.75rem;">戰績</th>
+                        {% if tournament.mode == 'bo3' %}
+                        <th style="padding: 0.75rem;">小分</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tp in participants %}
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 0.75rem;">
+                            <span style="font-weight: 700; color: {% if loop.index <= 8 %}var(--primary-blue){% else %}var(--text-secondary){% endif %};">
+                                #{{ loop.index }}
+                            </span>
+                        </td>
+                        <td style="padding: 0.75rem;">{{ tp.player.name }}</td>
+                        <td style="padding: 0.75rem;">{{ tp.deck.name if tp.deck else '-' }}</td>
+                        <td style="padding: 0.75rem;"><strong>{{ tp.points }}</strong></td>
+                        <td style="padding: 0.75rem;">{{ tp.wins }}W - {{ tp.losses }}L - {{ tp.ties }}T</td>
+                        {% if tournament.mode == 'bo3' %}
+                        <td style="padding: 0.75rem;">{{ tp.game_wins }}-{{ tp.game_losses }}</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="text-align: center; color: var(--text-secondary); padding: 2rem;">尚無參賽者</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Matches by Round -->
+    {% if matches_by_round %}
+    <div class="card">
+        <div class="card-header">對戰記錄</div>
+        <div class="card-body">
+            {% for round_num in matches_by_round.keys()|sort(reverse=True) %}
+            <div style="margin-bottom: 2rem;">
+                <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">第 {{ round_num }} 回合</h3>
+                <div class="grid grid-2">
+                    {% for match in matches_by_round[round_num] %}
+                    <div class="card" style="background: var(--bg-tertiary);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <span style="font-weight: 600;">{{ match.player1.player.name }}</span>
+                            </div>
+                            <div style="padding: 0 1rem; color: var(--text-secondary);">vs</div>
+                            <div style="flex: 1; text-align: right;">
+                                <span style="font-weight: 600;">{{ match.player2.player.name if match.player2 else 'BYE' }}</span>
+                            </div>
+                        </div>
+                        {% if match.result %}
+                        <div style="text-align: center; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
+                            <span class="status-badge {% if match.result == 'player1' %}status-live{% elif match.result == 'player2' %}status-upcoming{% elif match.result == 'bye' %}status-past{% else %}status-past{% endif %}">
+                                {% if match.result == 'player1' %}{{ match.player1.player.name }} 勝
+                                {% elif match.result == 'player2' %}{{ match.player2.player.name }} 勝
+                                {% elif match.result == 'bye' %}輪空
+                                {% elif match.result == 'draw' %}平手
+                                {% else %}雙敗{% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 2rem;">
+        <a href="{{ url_for('tournament.list') }}" class="btn btn-outline">← 返回賽事列表</a>
+    </div>
+</div>
+{% endblock %}

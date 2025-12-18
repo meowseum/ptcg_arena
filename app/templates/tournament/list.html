@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1>⚔️ 賽事列表</h1>
+        {% if current_user.is_authenticated and current_user.is_organizer() %}
+        <a href="{{ url_for('tournament.create') }}" class="btn btn-primary">+ 創建賽事</a>
+        {% endif %}
+    </div>
+
+    <!-- Filters -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-body">
+            <div style="display: flex; gap: 1rem;">
+                <a href="{{ url_for('tournament.list', status='all') }}"
+                   class="btn {% if status_filter == 'all' %}btn-primary{% else %}btn-outline{% endif %}">
+                    全部
+                </a>
+                <a href="{{ url_for('tournament.list', status='live') }}"
+                   class="btn {% if status_filter == 'live' %}btn-primary{% else %}btn-outline{% endif %}">
+                    🔴 進行中
+                </a>
+                <a href="{{ url_for('tournament.list', status='upcoming') }}"
+                   class="btn {% if status_filter == 'upcoming' %}btn-primary{% else %}btn-outline{% endif %}">
+                    📅 即將開始
+                </a>
+                <a href="{{ url_for('tournament.list', status='completed') }}"
+                   class="btn {% if status_filter == 'completed' %}btn-primary{% else %}btn-outline{% endif %}">
+                    ✅ 已結束
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tournament List -->
+    {% if tournaments %}
+    <div class="grid grid-3">
+        {% for tournament in tournaments %}
+        <div class="card tournament-card">
+            <span class="status-badge {% if tournament.status == 'live' %}status-live{% elif tournament.status == 'upcoming' %}status-upcoming{% else %}status-past{% endif %}">
+                {% if tournament.status == 'live' %}進行中{% elif tournament.status == 'upcoming' %}即將開始{% else %}已結束{% endif %}
+            </span>
+            <div class="card-header">{{ tournament.name }}</div>
+            <div class="card-body">
+                <p><strong>日期:</strong> {{ tournament.date.strftime('%Y-%m-%d') }}</p>
+                <p><strong>主辦:</strong> {{ tournament.organizer.username }}</p>
+                <p><strong>參賽人數:</strong> {{ tournament.participants|length }} 人</p>
+                {% if tournament.status == 'live' %}
+                <p><strong>當前回合:</strong> 第 {{ tournament.current_round }} 回合</p>
+                {% endif %}
+                <a href="{{ url_for('tournament.view', tournament_id=tournament.id) }}"
+                   class="btn {% if tournament.status == 'live' %}btn-primary{% else %}btn-outline{% endif %}"
+                   style="margin-top: 1rem; width: 100%;">
+                    查看詳情
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <p style="font-size: 1.2rem; color: var(--text-secondary);">目前沒有賽事</p>
+        {% if current_user.is_authenticated and current_user.is_organizer() %}
+        <a href="{{ url_for('tournament.create') }}" class="btn btn-primary" style="margin-top: 1rem;">
+            創建第一個賽事
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

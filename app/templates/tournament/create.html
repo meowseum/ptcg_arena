@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem; max-width: 800px;">
+    <h1 style="margin-bottom: 2rem;">⚔️ 創建新賽事</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('tournament.create') }}">
+                <!-- Tournament Name -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">賽事名稱 *</label>
+                    <input type="text" name="name" required
+                           placeholder="例如：月度聯賽 - 2025年1月"
+                           style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
+                </div>
+
+                <!-- Date -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">舉辦日期 *</label>
+                    <input type="date" name="date" required
+                           style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
+                </div>
+
+                <!-- Mode -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">賽制</label>
+                    <select name="mode"
+                            style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
+                        <option value="normal">一般（單局）</option>
+                        <option value="bo3">BO3（三戰兩勝）</option>
+                    </select>
+                </div>
+
+                <!-- Draw Points -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">平手分數</label>
+                    <select name="draw_points"
+                            style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
+                        <option value="0">0 分（無平手機制）</option>
+                        <option value="1">1 分</option>
+                    </select>
+                </div>
+
+                <!-- Season -->
+                {% if seasons %}
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">賽季（可選）</label>
+                    <select name="season_id"
+                            style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
+                        <option value="">不指定賽季</option>
+                        {% for season in seasons %}
+                        <option value="{{ season.id }}">{{ season.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <!-- Buttons -->
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">創建賽事</button>
+                    <a href="{{ url_for('tournament.list') }}" class="btn btn-outline" style="flex: 1; text-align: center;">取消</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
