@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem; text-align: center;">
+    <div class="card" style="max-width: 600px; margin: 0 auto; padding: 3rem;">
+        <div style="font-size: 5rem; margin-bottom: 1rem;">🔍</div>
+        <h1 style="color: var(--warning); margin-bottom: 1rem;">404 - 找不到頁面</h1>
+        <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2rem;">
+            抱歉，您要找的頁面不存在
+        </p>
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">返回首頁</a>
+    </div>
+</div>
+{% endblock %}

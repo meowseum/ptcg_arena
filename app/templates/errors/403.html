@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem; text-align: center;">
+    <div class="card" style="max-width: 600px; margin: 0 auto; padding: 3rem;">
+        <div style="font-size: 5rem; margin-bottom: 1rem;">🚫</div>
+        <h1 style="color: var(--danger); margin-bottom: 1rem;">403 - 存取被拒</h1>
+        <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2rem;">
+            您沒有權限存取此頁面
+        </p>
+
+        {% if current_user.is_authenticated %}
+        <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+            <p><strong>目前登入身分:</strong> {{ current_user.username }}</p>
+            <p><strong>Email:</strong> {{ current_user.email }}</p>
+            <p><strong>角色:</strong> {{ current_user.role }}</p>
+            <p style="margin-top: 1rem; color: var(--warning);">
+                此頁面需要更高的權限等級
+            </p>
+        </div>
+        {% else %}
+        <p style="margin-bottom: 2rem;">請先登入以存取此頁面</p>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">登入</a>
+        {% endif %}
+
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline" style="margin-top: 1rem;">
+            返回首頁
+        </a>
+    </div>
+</div>
+{% endblock %}

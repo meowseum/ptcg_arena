@@ -32,6 +32,29 @@ def create_app(config_name='default'):
     app.register_blueprint(analytics_bp, url_prefix='/analytics')
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
+    # Register error handlers
+    from flask import render_template, redirect, url_for
+
+    @app.errorhandler(401)
+    def unauthorized(e):
+        """Handle unauthorized access"""
+        return redirect(url_for('auth.login'))
+
+    @app.errorhandler(403)
+    def forbidden(e):
+        """Handle forbidden access"""
+        return render_template('errors/403.html'), 403
+
+    @app.errorhandler(404)
+    def not_found(e):
+        """Handle page not found"""
+        return render_template('errors/404.html'), 404
+
+    @app.errorhandler(500)
+    def server_error(e):
+        """Handle internal server error"""
+        return render_template('errors/500.html'), 500
+
     # Create tables
     with app.app_context():
         db.create_all()
